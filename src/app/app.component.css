@@ -1,0 +1,134 @@
+/* Modern card style for tab content (overrides global styles for this component) */
+.container {
+	max-width: 100vw;
+	padding-left: 0;
+	padding-right: 0;
+}
+.tab-content {
+	background: #fff;
+	border-radius: 1.25rem;
+	box-shadow: 0 8px 32px rgba(49,151,149,0.10), 0 1.5px 8px rgba(0,0,0,0.04);
+	padding: 2rem 0.5rem 1.5rem 0.5rem;
+	margin-bottom: 2.5rem;
+	border: 1.5px solid #e2e8f0;
+	transition: box-shadow 0.2s, border-color 0.2s;
+	max-width: 100vw;
+	margin-left: 0;
+	margin-right: 0;
+}
+.tab-content:focus-within, .tab-content:hover {
+	box-shadow: 0 12px 40px rgba(49,151,149,0.13), 0 2px 12px rgba(0,0,0,0.08);
+	border-color: #81e6d9;
+}
+.tab-content h2, .tab-content h5, .tab-content h6 {
+	color: #234e52;
+	font-weight: 600;
+}
+.tab-content p {
+	color: #4a5568;
+}
+.tab-content .form-control, .tab-content input, .tab-content textarea, .tab-content select {
+	border-radius: 0.5rem;
+	border: 1.5px solid #cbd5e0;
+	font-size: 1.08rem;
+	margin-bottom: 1rem;
+	background: #f7fafc;
+	transition: border-color 0.2s;
+}
+.tab-content .form-control:focus, .tab-content input:focus, .tab-content textarea:focus, .tab-content select:focus {
+	border-color: #38b2ac;
+	outline: none;
+}
+.tab-content .btn {
+	border-radius: 0.5rem;
+	font-weight: 500;
+	font-size: 1.08rem;
+	padding: 0.6rem 1.5rem;
+	margin-bottom: 0.5rem;
+}
+.tab-content .btn-primary {
+	background: #319795;
+	color: #fff;
+}
+.tab-content .btn-success {
+	background: #38a169;
+	color: #fff;
+}
+.tab-content .btn-danger {
+	background: #e53e3e;
+	color: #fff;
+}
+.tab-content .btn-warning {
+	background: #ecc94b;
+	color: #234e52;
+}
+.tab-content .btn-info {
+	background: #3182ce;
+	color: #fff;
+}
+.tab-content .alert-info {
+	background: #e6fffa;
+	color: #234e52;
+	border: 1px solid #b2f5ea;
+	border-radius: 0.5rem;
+}
+.tab-content .list-group-item {
+	background: #f7fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 0.5rem;
+	margin-bottom: 0.5rem;
+	padding: 0.75rem 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.tab-content .table {
+	background: #fff;
+	border-radius: 0.5rem;
+	overflow: hidden;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.tab-content .table th, .tab-content .table td {
+	border: 1px solid #e2e8f0;
+	padding: 0.75rem 0.5rem;
+}
+.tab-content .table thead {
+	background: #e6fffa;
+}
+/* Modern card style for tab content */
+.tab-content {
+	background: #fff;
+	border-radius: 1rem;
+	box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+	padding: 2rem 1.5rem;
+	margin-bottom: 2.5rem;
+	border: 1px solid #e2e8f0;
+	transition: box-shadow 0.2s, border-color 0.2s;
+}
+.tab-content:focus-within, .tab-content:hover {
+	box-shadow: 0 8px 32px rgba(49,151,149,0.10);
+	border-color: #b2f5ea;
+}
+
+/* Center the password prompt overlay */
+.password-prompt-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(35, 78, 82, 0.75);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+
+.password-prompt-box {
+	background: #fff;
+	padding: 2rem 1.5rem;
+	border-radius: 0.75rem;
+	box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+	max-width: 400px;
+	width: 100%;
+}

@@ -1,0 +1,35 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment files
+src/environments/*.ts
+
+# Logs
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Angular specific
+.angular/
+
+# Coverage reports
+coverage/
+
+# npm
+package-lock.json
+
+# Misc
+*.tmp
+*.swp
+
+# Optional: add more patterns as needed

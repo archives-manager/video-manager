@@ -1,0 +1,308 @@
+<div *ngIf="showPasswordPrompt" class="password-prompt-overlay">
+    <div class="password-prompt-box">
+        <h2 class="h4 mb-3 text-dark">Welcome!</h2>
+        <p class="text-muted mb-3">Enter password to access Video File Manager.</p>
+        <input type="password" [(ngModel)]="password" class="form-control mb-3" placeholder="Password">
+        <button class="btn btn-primary w-100" [disabled]="loading" (click)="checkPassword()">{{ loading ? 'Loading...' :
+            'Log In' }}</button>
+    </div>
+</div>
+
+<div *ngIf="!showPasswordPrompt" class="container py-4">
+    <header class="bg-light rounded shadow mb-4 p-3">
+        <h1 class="h3 text-center">Video File Manager</h1>
+        <p class="text-center text-muted small mt-1">Organize, tag, and preview your video files with cloud sync!</p>
+    </header>
+
+    <ul class="nav nav-tabs mb-4" role="tablist" style="gap: 0.5rem; display: flex;">
+        <li class="nav-item" *ngFor="let tab of tabs" style="margin-right: 0;">
+            <a class="nav-link" [ngClass]="{'active': activeTab === tab.id, 'fw-bold': activeTab === tab.id}"
+                (click)="showTab(tab.id)" href="#">{{ tab.label }}</a>
+        </li>
+        <div *ngIf="mainAlert" class="alert alert-info text-center mb-3">{{ mainAlert }}</div>
+    </ul>
+
+    <div class="tab-content">
+        <div *ngIf="activeTab === 'programmesTab'" class="tab-pane active">
+            <h2 class="h5 mb-3">Manage Programme Names</h2>
+            <p class="text-muted small mb-3">Add, edit, or remove programme names for tagging.</p>
+            <form class="row g-2 mb-3" (ngSubmit)="addProgramme()">
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="Enter programme name"
+                        [(ngModel)]="newProgramme" name="newProgramme">
+                </div>
+                <div class="col-sm-4">
+                    <button type="submit" class="btn btn-success w-100">Add Programme</button>
+                </div>
+            </form>
+            <div *ngIf="programmes.length === 0" class="alert alert-info">No programmes available. Add a programme above
+                to start tagging files.</div>
+            <ul class="list-group">
+                <li *ngFor="let prog of programmes"
+                    class="list-group-item d-flex align-items-center justify-content-between">
+                    <input type="text" class="form-control me-2" [(ngModel)]="prog.name" [readonly]="!prog.editing"
+                        [disabled]="!prog.editing" style="max-width: 300px; display: inline-block;">
+                    <div>
+                        <button class="btn btn-warning btn-sm me-2" *ngIf="!prog.editing"
+                            (click)="prog.editing = true">Edit</button>
+                        <button class="btn btn-success btn-sm me-2" *ngIf="prog.editing"
+                            (click)="editProgramme(prog)">Save</button>
+                        <button class="btn btn-secondary btn-sm me-2" *ngIf="prog.editing"
+                            (click)="prog.editing = false">Cancel</button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteProgramme(prog)">Delete</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div *ngIf="activeTab === 'disksTab'" class="tab-pane active">
+            <h2 class="h5 mb-3">Scanned Disks</h2>
+            <p class="text-muted small mb-3">View all scanned Disk IDs and rescan for new programmes.</p>
+            <form class="row g-2 mb-3" (ngSubmit)="addDisk()">
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="Enter Disk ID (e.g., 117-HD2TB)"
+                        [(ngModel)]="newDiskId" name="newDiskId">
+                </div>
+                <div class="col-sm-4">
+                    <button type="submit" class="btn btn-success w-100">Add Disk</button>
+                </div>
+            </form>
+            <div *ngIf="disks.length === 0" class="alert alert-info">No disks available. Add a disk above to start.
+            </div>
+            <ul class="list-group mb-3">
+                <li *ngFor="let disk of disks"
+                    class="list-group-item d-flex align-items-center justify-content-between">
+                    <input type="text" class="form-control me-2" [(ngModel)]="disk.id" [readonly]="!disk.editing"
+                        style="max-width: 300px; display: inline-block;">
+                    <div>
+                        <button class="btn btn-warning btn-sm me-2" (click)="editDisk(disk)">{{ disk.editing ? 'Save' :
+                            'Edit' }}</button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteDisk(disk)">Delete</button>
+                    </div>
+                </li>
+            </ul>
+            <h6 class="mt-4">Disk IDs from scanned files</h6>
+            <div *ngIf="diskIdsFromFiles.length === 0" class="alert alert-info">No scanned disks found in files.</div>
+            <ul class="list-group">
+                <li *ngFor="let diskId of diskIdsFromFiles"
+                    class="list-group-item d-flex align-items-center justify-content-between">
+                    <span>{{ diskId }}</span>
+                    <button class="btn btn-primary btn-sm" (click)="rescanDisk(diskId)">Rescan</button>
+                </li>
+            </ul>
+        </div>
+        <div *ngIf="activeTab === 'scanTab'" class="tab-pane active">
+            <h2 class="h5 mb-3">Select HDD and Scan</h2>
+            <p class="text-muted small mb-3">Choose a folder (including subfolders) and assign a Disk ID.</p>
+            <form class="row g-2 mb-3" (ngSubmit)="scanDisk()">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Disk ID (e.g., 117-HD2TB)"
+                        [(ngModel)]="scanDiskId" name="scanDiskId">
+                </div>
+                <div class="col-md-5">
+                    <input type="file" class="form-control" (change)="onFolderSelect($event)" webkitdirectory directory
+                        multiple>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Scan Videos</button>
+                </div>
+            </form>
+            <div *ngIf="scanProgressActive" class="progress mb-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" [style.width]="scanProgress + '%'"
+                    style="transition: width 0.4s;">
+                    {{ scanProgress }}%
+                </div>
+            </div>
+            <div *ngIf="scanFiles.length > 0">
+                <h6>Scanned Files ({{ scanFiles.length }})</h6>
+                <ul class="list-group mb-2">
+                    <li *ngFor="let file of scanFiles" class="list-group-item">{{ file }}</li>
+                </ul>
+            </div>
+        </div>
+        <div *ngIf="activeTab === 'scannedTab'" class="tab-pane active">
+            <h2 class="h5 mb-3">Scanned Video Files</h2>
+            <p class="text-muted small mb-3">View unarchived video files from selected disk, sorted alphabetically.</p>
+            <div class="mb-3">
+                <label for="scannedDiskSelect" class="form-label">Select Disk:</label>
+                <select id="scannedDiskSelect" class="form-select" [(ngModel)]="selectedScannedDiskId"
+                    name="selectedScannedDiskId" (change)="loadScannedFiles()">
+                    <option value="">-- All Disks --</option>
+                    <option *ngFor="let diskId of diskIdsFromFiles" [value]="diskId">{{ diskId }}</option>
+                </select>
+            </div>
+            <div *ngIf="scannedFiles.length === 0" class="alert alert-info">No scanned files for selected disk. Please
+                scan a disk first.</div>
+            <div *ngIf="scannedFiles.length > 0" class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Relative File Path</th>
+                            <th>Disk ID</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let file of scannedFiles"
+                            [ngClass]="{'table-success': isFileAccessible(file.filePath), 'table-danger': !isFileAccessible(file.filePath)}">
+                            <td>{{ file.filePath }}</td>
+                            <td>{{ file.diskId }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm me-2"
+                                    (click)="editMetadata(file.filePath)">Edit</button>
+                                <button class="btn btn-info btn-sm me-2" (click)="playFile(file.filePath)">Play</button>
+                                <button class="btn btn-secondary btn-sm me-2"
+                                    (click)="copyFile(file.filePath)">Copy/Download</button>
+                                <button class="btn btn-warning btn-sm" (click)="updateFilePath(file.filePath)">Update
+                                    Path</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div *ngIf="activeTab === 'metadataTab'" class="tab-pane active">
+            <h2 class="h5 mb-3">Manage Metadata</h2>
+            <p class="text-muted small mb-3">Add or edit metadata while previewing the video. Episode Details are auto-corrected to sentence case on save.</p>
+            <div class="row align-items-start">
+                <div class="col-lg-6 col-md-12 mb-3 d-flex flex-column align-items-center justify-content-start">
+                    <div *ngIf="videoPreviewUrl" class="mb-3 w-100">
+                        <label class="form-label">Video Preview</label>
+                        <video [src]="videoPreviewUrl" controls style="width:100%;max-width:600px;min-height:300px;" class="mb-2"></video>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-3" *ngIf="videoPreviewUrl">
+                    <form (ngSubmit)="saveMetadata()">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" placeholder="Selected relative file path" [(ngModel)]="metadataFilePath" name="metadataFilePath" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Name of Programme</label>
+                            <select class="form-select" [(ngModel)]="metadataProgramme" name="metadataProgramme">
+                                <option value="">Select Programme</option>
+                                <option *ngFor="let prog of programmes" [value]="prog.name">{{ prog.name }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Episode Number</label>
+                            <input type="number" class="form-control" [(ngModel)]="metadataEpisodeNumber" name="metadataEpisodeNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Telecast Date</label>
+                            <input type="date" class="form-control" [(ngModel)]="metadataTelecastDate" name="metadataTelecastDate">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Episode Details</label>
+                            <textarea class="form-control" rows="3" [(ngModel)]="metadataEpisodeDetails" name="metadataEpisodeDetails"></textarea>
+                            <button type="button" class="btn btn-warning mt-2" (click)="checkGrammar()">Check Grammar</button>
+                            <div *ngIf="grammarSuggestions" class="alert alert-info mt-2" [innerHTML]="grammarSuggestions"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Custom Metadata Fields</label>
+                            <div *ngFor="let field of customFields; let i = index" class="input-group mb-2">
+                                <input type="text" class="form-control" placeholder="Field Name" [(ngModel)]="field.key" [name]="'customKey' + i">
+                                <input type="text" class="form-control" placeholder="Value" [(ngModel)]="field.value" [name]="'customValue' + i">
+                                <button type="button" class="btn btn-danger" (click)="removeCustomField(i)">Remove</button>
+                            </div>
+                            <button type="button" class="btn btn-secondary" (click)="addCustomField()">Add Custom Field</button>
+                        </div>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-success">Save Metadata</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="activeTab === 'searchTab'" class="tab-pane active">
+            <h2 class="h5 mb-3">Search Files</h2>
+            <p class="text-muted small mb-3">Find archived files by Disk ID, programme name, episode number, telecast
+                date, or other metadata. Use AND (all criteria must match) or OR (any criterion matches).</p>
+            <form class="row g-2 mb-3" (ngSubmit)="searchFiles()">
+                <div class="col-md-2">
+                    <input type="text" class="form-control" placeholder="Disk ID" [(ngModel)]="searchDiskId"
+                        name="searchDiskId">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" placeholder="Programme Name" [(ngModel)]="searchProgramme"
+                        name="searchProgramme">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" placeholder="Episode Number"
+                        [(ngModel)]="searchEpisodeNumber" name="searchEpisodeNumber">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" class="form-control" [(ngModel)]="searchTelecastDate" name="searchTelecastDate">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" placeholder="Metadata" [(ngModel)]="searchMetadata"
+                        name="searchMetadata">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" [(ngModel)]="searchLogic" name="searchLogic">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                    </select>
+                </div>
+                <div class="col-12 mt-2">
+                    <button type="submit" class="btn btn-primary">Search Files</button>
+                </div>
+            </form>
+            <div *ngIf="searchResults.length > 0" class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>File Path</th>
+                            <th>Disk ID</th>
+                            <th>Programme</th>
+                            <th>Episode</th>
+                            <th>Date</th>
+                            <th>Metadata</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let result of searchResults"
+                            [ngClass]="{'table-success': isFileAccessible(result.filePath), 'table-danger': !isFileAccessible(result.filePath)}">
+                            <td>{{ result.filePath }}</td>
+                            <td>{{ result.diskId }}</td>
+                            <td>{{ result.programme }}</td>
+                            <td>{{ result.episode }}</td>
+                            <td>{{ result.date }}</td>
+                            <td>{{ result.metadata }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm me-2"
+                                    (click)="editMetadata(result.filePath)">Edit</button>
+                                <button class="btn btn-info btn-sm me-2"
+                                    (click)="playFile(result.filePath)">Play</button>
+                                <button class="btn btn-secondary btn-sm me-2"
+                                    (click)="copyFile(result.filePath)">Copy/Download</button>
+                                <button class="btn btn-warning btn-sm" (click)="updateFilePath(result.filePath)">Update
+                                    Path</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div *ngIf="activeTab === 'exportTab'" class="tab-pane active">
+            <h2 class="h5 mb-3">Export and Backup</h2>
+            <p class="text-muted small mb-3">Export metadata as CSV, backup data as JSON, or restore from JSON.</p>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <button class="btn btn-success w-100" (click)="exportReport()">Export as CSV</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary w-100" (click)="backupData()">Backup Data</button>
+                </div>
+                <div class="col-md-4 d-flex align-items-center">
+                    <input type="file" class="form-control me-2" accept=".json" (change)="onRestoreFileSelect($event)">
+                    <button class="btn btn-info w-100" (click)="restoreData()">Restore Data</button>
+                </div>
+            </div>
+            <div *ngIf="exportMessage" class="alert alert-info mt-3">{{ exportMessage }}</div>
+        </div>
+    </div>
+
+    <footer class="bg-light rounded shadow mt-4 text-center text-muted small p-2">
+        <p>Video File Manager v2.6 | Built for secure video organization with cloud sync | September 29, 2025</p>
+    </footer>
+</div>
