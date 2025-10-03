@@ -33,3 +33,4 @@ package-lock.json
 *.swp
 
 # Optional: add more patterns as needed
+.env
